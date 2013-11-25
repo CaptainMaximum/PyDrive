@@ -262,6 +262,42 @@ class GoogleDriveFile(ApiAttributeMixin, ApiResource):
             self.UpdateMetadata(metadata)
 
     @LoadAuth
+    def _FilesTrash(self, param=None):
+        """Soft-delete (Trash) a file using Files.Trash().
+
+        :param param: additional parameter to file.
+        :type param: dict.
+        :raises: ApiRequestError, FileNotUploadedError
+        """
+        if param is None:
+            param = {}
+        param['fileId'] = self.metadata.get('id')
+        try:
+            metadata = self.auth.service.files().trash(**param).execute()
+        except errors.HttpError, error:
+            raise ApiRequestError(error)
+        else:
+            return True
+
+    @LoadAuth
+    def _FilesDelete(self, param=None):
+        """Delete a file using Files.Delete() (WARNING: Skips the trash!).
+
+        :param param: additional parameter to file.
+        :type param: dict.
+        :raises: ApiRequestError, FileNotUploadedError
+        """
+        if param is None:
+            param = {}
+        param['fileId'] = self.metadata.get('id')
+        try:
+            metadata = self.auth.service.files().delete(**param).execute()
+        except errors.HttpError, error:
+            raise ApiRequestError(error)
+        else:
+            return True
+
+    @LoadAuth
     @LoadMetadata
     def _FilesPatch(self, param=None):
         """Update metadata using Files.Patch().
