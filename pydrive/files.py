@@ -278,7 +278,8 @@ class GoogleDriveFile(ApiAttributeMixin, ApiResource):
         """
         if param is None:
             param = {}
-        param['fileId'] = self.metadata.get('id')
+        if 'fileId' not in param.keys():
+            param['fileId'] = self.metadata.get('id')
         try:
             metadata = self.auth.service.files().trash(**param).execute()
         except errors.HttpError, error:
@@ -296,7 +297,8 @@ class GoogleDriveFile(ApiAttributeMixin, ApiResource):
         """
         if param is None:
             param = {}
-        param['fileId'] = self.metadata.get('id')
+        if 'fileId' not in param.keys():
+            param['fileId'] = self.metadata.get('id')
         try:
             metadata = self.auth.service.files().delete(**param).execute()
         except errors.HttpError, error:
