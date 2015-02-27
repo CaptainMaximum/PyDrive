@@ -239,6 +239,14 @@ class GoogleAuth(ApiAttributeMixin, object):
     except CredentialsFileSymbolicLinkError:
       raise InvalidCredentialsError('Credentials file cannot be symbolic link')
 
+  def CredentialsFromJSON(self, json_string):
+    """Sets the credentials member as an OAuth2Credentials
+      object.  Only to be used before calling self.Refresh().
+
+      :param json_string: String to create the OAuth2Credentials object.
+    """
+    self.credentials = OAuth2Credentials.from_json(json_string)
+
   def SaveCredentials(self, backend=None):
     """Saves credentials according to specified backend.
 
