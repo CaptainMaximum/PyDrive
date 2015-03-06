@@ -105,17 +105,19 @@ class GoogleAuth(ApiAttributeMixin, object):
     http = ApiAttribute('http')
     service = ApiAttribute('service')
 
-    def __init__(self, settings_file='settings.yaml'):
+    def __init__(self, settings_file='settings.yaml', flow_params={}):
         """Create an instance of GoogleAuth.
 
         This constructor just sets the path of settings file.
         It does not actually read the file.
 
         :param settings_file: path of settings file. 'settings.yaml' by default.
+        :param flow_params: additional settings for generating a client flow object in self.GetFlow()
         :type settings_file: str.
         """
         ApiAttributeMixin.__init__(self)
         self.client_config = {}
+        self.flow_params = flow_params
         try:
             self.settings = LoadSettingsFile(settings_file)
         except SettingsError:
@@ -360,6 +362,10 @@ class GoogleAuth(ApiAttributeMixin, object):
         }
         if self.client_config['revoke_uri'] is not None:
             constructor_kwargs['revoke_uri'] = self.client_config['revoke_uri']
+        # Combine constructor_kwargs with our custom flow params.
+        # Note that, if set, our flow parameters may overwrite some of the constructor_kwargs
+        # (i.e. flow_params['redirect_uri'] would overwrite constructor_kwargs['redirect_uri'])
+        constructor_kwargs = dict(constructor_kwargs.items() + self.flow_params.items())
         self.flow = OAuth2WebServerFlow(
                 self.client_config['client_id'],
                 self.client_config['client_secret'],
